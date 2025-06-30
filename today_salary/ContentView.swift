@@ -8,14 +8,20 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var dataManager = DataManager.shared
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if dataManager.userProfile.isSetup {
+                MainView()
+            } else {
+                WelcomeView()
+            }
         }
-        .padding()
+        .onAppear {
+            // 确保数据管理器已加载
+            dataManager.loadData()
+        }
     }
 }
 
