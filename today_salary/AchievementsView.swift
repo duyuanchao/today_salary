@@ -7,39 +7,56 @@ struct AchievementsView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 20) {
-                    // Header Stats
-                    VStack(spacing: 12) {
+                VStack(spacing: DesignTokens.Spacing.lg) {
+                    // Premium Header Stats
+                    VStack(spacing: DesignTokens.Spacing.md) {
                         Text("🏆 Achievements")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
+                            .font(DesignTokens.Typography.largeTitle)
+                            .foregroundColor(DesignTokens.Colors.textPrimary)
                         
                         Text("\(unlockedCount)/\(dataManager.achievements.count) Unlocked")
-                            .font(.title3)
-                            .foregroundColor(.secondary)
+                            .font(DesignTokens.Typography.title3)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
                         
-                        ProgressView(value: progressPercentage)
-                            .progressViewStyle(LinearProgressViewStyle(tint: .orange))
-                            .scaleEffect(x: 1, y: 2)
+                        // Premium progress ring instead of bar
+                        AnimatedProgressRing(
+                            progress: progressPercentage,
+                            lineWidth: 8,
+                            size: 100,
+                            colors: [DesignTokens.Colors.warning, Color(hex: "#FFB84D")]
+                        )
                     }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .padding(DesignTokens.Spacing.lg)
+                    .premiumCard()
                     
-                    // Achievements Grid
-                    LazyVGrid(columns: gridColumns, spacing: 16) {
+                    // Premium Achievements Grid
+                    LazyVGrid(columns: gridColumns, spacing: DesignTokens.Spacing.md) {
                         ForEach(dataManager.achievements) { achievement in
-                            AchievementCard(achievement: achievement)
+                            PremiumAchievementCard(achievement: achievement)
                         }
                     }
                 }
-                .padding()
+                .padding(DesignTokens.Spacing.lg)
+                .background(
+                    LinearGradient(
+                        colors: [DesignTokens.Colors.background, DesignTokens.Colors.surface],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .ignoresSafeArea()
+                )
             }
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                    Button(action: {
+                        HapticManager.impact(.light)
                         presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
                     }
                 }
             }
@@ -60,53 +77,104 @@ struct AchievementsView: View {
     }
 }
 
-struct AchievementCard: View {
+struct PremiumAchievementCard: View {
     let achievement: Achievement
+    @State private var isAnimating = false
     
     var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: achievement.icon)
-                .font(.largeTitle)
-                .foregroundColor(achievement.isUnlocked ? .orange : .gray.opacity(0.5))
+        VStack(spacing: DesignTokens.Spacing.md) {
+            // Animated Icon
+            ZStack {
+                if achievement.isUnlocked {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [DesignTokens.Colors.warning, Color(hex: "#FFB84D")],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 60, height: 60)
+                        .shadow(color: DesignTokens.Colors.warning.opacity(0.3), radius: 10, x: 0, y: 5)
+                        .scaleEffect(isAnimating ? 1.1 : 1.0)
+                        .animation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true), value: isAnimating)
+                }
+                
+                Image(systemName: achievement.icon)
+                    .font(.system(size: 28))
+                    .foregroundColor(achievement.isUnlocked ? .white : DesignTokens.Colors.textTertiary)
+            }
+            .onAppear {
+                if achievement.isUnlocked {
+                    isAnimating = true
+                }
+            }
             
-            Text(achievement.title)
-                .font(.headline)
-                .fontWeight(.medium)
-                .foregroundColor(achievement.isUnlocked ? .primary : .secondary)
-                .multilineTextAlignment(.center)
+            VStack(spacing: DesignTokens.Spacing.xs) {
+                Text(achievement.title)
+                    .font(DesignTokens.Typography.headline)
+                    .fontWeight(.medium)
+                    .foregroundColor(achievement.isUnlocked ? DesignTokens.Colors.textPrimary : DesignTokens.Colors.textSecondary)
+                    .multilineTextAlignment(.center)
+                
+                Text(achievement.description)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(DesignTokens.Colors.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+            }
             
-            Text(achievement.description)
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .lineLimit(3)
-            
+            // Status Indicator
             if achievement.isUnlocked {
-                HStack {
+                HStack(spacing: DesignTokens.Spacing.xs) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
+                        .foregroundColor(DesignTokens.Colors.success)
                     Text("Unlocked")
-                        .font(.caption)
+                        .font(DesignTokens.Typography.caption)
                         .fontWeight(.medium)
-                        .foregroundColor(.green)
+                        .foregroundColor(DesignTokens.Colors.success)
                 }
             } else {
-                Text("🔒 Locked")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                HStack(spacing: DesignTokens.Spacing.xs) {
+                    Image(systemName: "lock.fill")
+                        .foregroundColor(DesignTokens.Colors.textTertiary)
+                    Text("Locked")
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundColor(DesignTokens.Colors.textTertiary)
+                }
             }
         }
-        .padding(16)
-        .frame(height: 160)
+        .padding(DesignTokens.Spacing.lg)
+        .frame(height: 180)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(achievement.isUnlocked ? Color.orange.opacity(0.1) : Color(.systemGray6))
+            Group {
+                if achievement.isUnlocked {
+                    LinearGradient(
+                        colors: [DesignTokens.Colors.warning.opacity(0.1), DesignTokens.Colors.surface],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                } else {
+                    DesignTokens.Colors.surfaceSecondary
+                }
+            }
         )
+        .cornerRadius(DesignTokens.CornerRadius.lg)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(achievement.isUnlocked ? Color.orange.opacity(0.3) : Color.clear, lineWidth: 2)
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .stroke(
+                    achievement.isUnlocked ? DesignTokens.Colors.warning.opacity(0.3) : DesignTokens.Colors.border,
+                    lineWidth: achievement.isUnlocked ? 2 : 1
+                )
+        )
+        .shadow(
+            color: achievement.isUnlocked ? DesignTokens.Colors.warning.opacity(0.2) : DesignTokens.Shadow.light,
+            radius: achievement.isUnlocked ? 15 : 8,
+            x: 0,
+            y: achievement.isUnlocked ? 8 : 4
         )
         .scaleEffect(achievement.isUnlocked ? 1.0 : 0.95)
         .opacity(achievement.isUnlocked ? 1.0 : 0.7)
+        .animation(DesignTokens.Animation.spring, value: achievement.isUnlocked)
     }
 } 
