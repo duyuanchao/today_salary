@@ -14,88 +14,118 @@ struct WelcomeView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // 渐变背景
+                // Premium gradient background
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.8)]),
+                    colors: DesignTokens.Colors.backgroundGradient,
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
                 .onTapGesture {
-                    // 点击空白区域收回键盘
                     hideKeyboard()
                 }
                 
                 ScrollView {
-                    VStack(spacing: 30) {
-                        Spacer(minLength: 20)
+                    VStack(spacing: DesignTokens.Spacing.xl) {
+                        Spacer(minLength: DesignTokens.Spacing.lg)
                         
-                        // Logo and Welcome Text
-                        VStack(spacing: 20) {
-                            Image(systemName: "dollarsign.circle.fill")
-                                .font(.system(size: 80))
-                                .foregroundColor(.white)
-                                .shadow(radius: 10)
+                        // Premium Logo and Welcome Text
+                        VStack(spacing: DesignTokens.Spacing.lg) {
+                            // Animated logo with gradient
+                            ZStack {
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [.white.opacity(0.3), .white.opacity(0.1)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 120, height: 120)
+                                    .blur(radius: 10)
+                                
+                                Image(systemName: "dollarsign.circle.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.white)
+                                    .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
+                            }
+                            .scaleEffect(1.0)
+                            .animation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true), value: true)
                             
-                            Text("Welcome to")
-                                .font(.title2)
-                                .foregroundColor(.white.opacity(0.9))
-                            
-                            Text("Daily Earnings")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            
-                            Text("Track your progress, stay motivated!")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
-                                .multilineTextAlignment(.center)
+                            VStack(spacing: DesignTokens.Spacing.md) {
+                                Text("Welcome to")
+                                    .font(DesignTokens.Typography.title3)
+                                    .foregroundColor(.white.opacity(0.9))
+                                
+                                Text("Daily Earnings")
+                                    .font(DesignTokens.Typography.largeTitle)
+                                    .foregroundColor(.white)
+                                
+                                Text("Track your progress, stay motivated!")
+                                    .font(DesignTokens.Typography.subheadline)
+                                    .foregroundColor(.white.opacity(0.8))
+                                    .multilineTextAlignment(.center)
+                            }
                         }
                         
-                        // Input Form
-                        VStack(spacing: 20) {
-                            VStack(alignment: .leading, spacing: 8) {
+                        // Premium Input Form
+                        VStack(spacing: DesignTokens.Spacing.lg) {
+                            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                                 Text("Your Name (Optional)")
-                                    .font(.headline)
+                                    .font(DesignTokens.Typography.headline)
                                     .foregroundColor(.white)
                                 
                                 TextField("Enter your name", text: $userName)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .font(.body)
+                                    .font(DesignTokens.Typography.body)
                                     .focused($isNameFieldFocused)
                                     .submitLabel(.next)
                                     .onSubmit {
                                         isNameFieldFocused = false
                                         isIncomeFieldFocused = true
                                     }
+                                    .padding(DesignTokens.Spacing.md)
+                                    .background(.ultraThinMaterial)
+                                    .cornerRadius(DesignTokens.CornerRadius.md)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                                            .stroke(.white.opacity(0.3), lineWidth: 1)
+                                    )
                             }
                             
-                            VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                                 Text("Monthly Income")
-                                    .font(.headline)
+                                    .font(DesignTokens.Typography.headline)
                                     .foregroundColor(.white)
                                 
                                 HStack {
                                     Text("$")
-                                        .font(.title2)
+                                        .font(DesignTokens.Typography.title2)
                                         .foregroundColor(.white)
+                                        .padding(.leading, DesignTokens.Spacing.md)
                                     
                                     TextField("0", text: $monthlyIncome)
-                                        .textFieldStyle(RoundedBorderTextFieldStyle())
                                         .keyboardType(.decimalPad)
-                                        .font(.body)
+                                        .font(DesignTokens.Typography.title3)
                                         .focused($isIncomeFieldFocused)
                                         .toolbar {
                                             ToolbarItemGroup(placement: .keyboard) {
                                                 Spacer()
-                                                Button("完成") {
+                                                Button("Done") {
                                                     hideKeyboard()
                                                 }
-                                                .foregroundColor(.blue)
+                                                .foregroundColor(DesignTokens.Colors.primary)
                                                 .fontWeight(.medium)
                                             }
                                         }
+                                        .padding(.trailing, DesignTokens.Spacing.md)
                                 }
+                                .padding(.vertical, DesignTokens.Spacing.md)
+                                .background(.ultraThinMaterial)
+                                .cornerRadius(DesignTokens.CornerRadius.md)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                                        .stroke(.white.opacity(0.3), lineWidth: 1)
+                                )
                             }
                             
                             // 计算方式选择
@@ -206,27 +236,34 @@ struct WelcomeView: View {
                         }
                         .padding(.horizontal, 30)
                         
-                        // Get Started Button
+                        // Premium Get Started Button
                         Button(action: {
                             firebaseManager.trackButtonTap(buttonName: "get_started", screenName: "welcome")
+                            HapticManager.impact(.medium)
                             setupProfile()
                         }) {
-                            HStack {
+                            HStack(spacing: DesignTokens.Spacing.sm) {
                                 Image(systemName: "arrow.right.circle.fill")
                                 Text("Get Started")
                                     .fontWeight(.semibold)
                             }
-                            .font(.title3)
-                            .foregroundColor(.blue)
+                            .font(DesignTokens.Typography.title3)
+                            .foregroundColor(DesignTokens.Colors.primary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color.white)
-                            .cornerRadius(28)
-                            .shadow(radius: 10)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(DesignTokens.CornerRadius.xl)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
+                                    .stroke(.white.opacity(0.3), lineWidth: 1)
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
                         }
-                        .padding(.horizontal, 30)
+                        .padding(.horizontal, DesignTokens.Spacing.xl)
                         .disabled(monthlyIncome.isEmpty || Double(monthlyIncome) == nil || Double(monthlyIncome)! <= 0)
                         .opacity((monthlyIncome.isEmpty || Double(monthlyIncome) == nil || Double(monthlyIncome)! <= 0) ? 0.6 : 1.0)
+                        .scaleEffect((monthlyIncome.isEmpty || Double(monthlyIncome) == nil || Double(monthlyIncome)! <= 0) ? 0.95 : 1.0)
+                        .animation(DesignTokens.Animation.spring, value: monthlyIncome)
                         
                         Spacer(minLength: 20)
                     }

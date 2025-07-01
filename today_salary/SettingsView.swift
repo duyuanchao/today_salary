@@ -120,7 +120,7 @@ struct SettingsView: View {
                     .disabled(monthlyIncome.isEmpty || Double(monthlyIncome) == nil || Double(monthlyIncome)! <= 0)
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(DesignTokens.Colors.background)
             .onTapGesture {
                 hideKeyboard()
             }
@@ -128,9 +128,14 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(action: {
                         hideKeyboard()
+                        HapticManager.impact(.light)
                         presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(DesignTokens.Colors.textSecondary)
                     }
                 }
             }
