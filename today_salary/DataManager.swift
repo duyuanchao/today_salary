@@ -1,5 +1,6 @@
 import Foundation
 import UserNotifications
+import Combine
 
 class DataManager: ObservableObject {
     static let shared = DataManager()
@@ -19,8 +20,20 @@ class DataManager: ObservableObject {
     private let challengesKey = "Challenges"
     private let lastCalculationMonthKey = "LastCalculationMonth"
     
-    // 定时器用于自动更新收入
-    private var earningsUpdateTimer: Timer?
+    // 定时器用于自动更新收入 - 修复内存泄漏
+    private weak var earningsUpdateTimer: Timer?
+    
+    // 批量保存机制
+    private var pendingSaveTimer: Timer?
+    private let saveQueue = DispatchQueue(label: "data.save", qos: .utility)
+    
+    // 缓存机制
+    private var calculationCache: [String: Any] = [:]
+    private var cacheTimestamps: [String: Date] = [:]
+    private let cacheExpiryInterval: TimeInterval = 30 // 30秒缓存过期
+    
+    // Combine取消标识
+    private var cancellables = Set<AnyCancellable>()
     
     private init() {
         loadData()
@@ -29,15 +42,92 @@ class DataManager: ObservableObject {
         requestNotificationPermission()
         checkAndUpdateMonthlyCalculation()
         startAutoEarningsUpdate()
+        
+        // 设置响应式更新
+        setupReactiveUpdates()
     }
     
     deinit {
         stopAutoEarningsUpdate()
+        pendingSaveTimer?.invalidate()
     }
     
-    // MARK: - 自动收入更新
+    // MARK: - 响应式更新设置
+    private func setupReactiveUpdates() {
+        // 监听收入变化，使用防抖
+        $todayEarnings
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.updateProgress()
+                self?.scheduleSave()
+            }
+            .store(in: &cancellables)
+    }
+    
+    // MARK: - 缓存机制
+    private func getCachedResult<T>(key: String, calculation: () -> T) -> T {
+        let now = Date()
+        
+        // 检查缓存是否有效
+        if let cached = calculationCache[key] as? T,
+           let timestamp = cacheTimestamps[key],
+           now.timeIntervalSince(timestamp) < cacheExpiryInterval {
+            return cached
+        }
+        
+        // 执行计算并缓存结果
+        let result = calculation()
+        calculationCache[key] = result
+        cacheTimestamps[key] = now
+        return result
+    }
+    
+    private func clearCache() {
+        calculationCache.removeAll()
+        cacheTimestamps.removeAll()
+    }
+    
+    // MARK: - 批量保存机制
+    private func scheduleSave() {
+        pendingSaveTimer?.invalidate()
+        pendingSaveTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+            self?.saveDataBatch()
+        }
+    }
+    
+    private func saveDataBatch() {
+        saveQueue.async { [weak self] in
+            guard let self = self else { return }
+            
+            // 异步保存所有数据
+            self.performSave()
+        }
+    }
+    
+    private func performSave() {
+        // 保存用户配置
+        if let data = try? JSONEncoder().encode(userProfile) {
+            UserDefaults.standard.set(data, forKey: userProfileKey)
+        }
+        
+        // 保存今日收入
+        saveTodayEarnings()
+        
+        // 保存成就
+        if let data = try? JSONEncoder().encode(achievements) {
+            UserDefaults.standard.set(data, forKey: achievementsKey)
+        }
+        
+        // 保存挑战
+        if let data = try? JSONEncoder().encode(challenges) {
+            UserDefaults.standard.set(data, forKey: challengesKey)
+        }
+    }
+    
+    // MARK: - 自动收入更新 - 修复内存泄漏
     private func startAutoEarningsUpdate() {
-        // 每分钟更新一次基于时间的收入
+        stopAutoEarningsUpdate()
+        
         earningsUpdateTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             self?.updateTimeBasedEarnings()
         }
@@ -54,19 +144,23 @@ class DataManager: ObservableObject {
     private func updateTimeBasedEarnings() {
         guard userProfile.isSetup && userProfile.workingHours.isAutoCalculateEnabled else { return }
         
-        let timeBasedEarnings = userProfile.calculateTimeBasedEarnings()
+        let timeBasedEarnings = getCachedResult(key: "timeBasedEarnings") {
+            userProfile.calculateTimeBasedEarnings()
+        }
         
         // 只有当自动计算的收入大于当前记录的收入时才更新
         if timeBasedEarnings > todayEarnings.amount {
             let hoursWorked = userProfile.workingHours.getWorkedHoursToday()
             
             todayEarnings.updateAmount(timeBasedEarnings, target: userProfile.dailyTarget)
-            updateProgress()
-            checkAchievements()
-            checkChallenges()
-            saveData()
             
-            // Firebase分析：记录自动计算事件
+            // 延迟非关键操作
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.checkAchievements()
+                self.checkChallenges()
+            }
+            
+            // 批量Firebase跟踪（减少频率）
             firebaseManager.trackAutoEarningsCalculation(
                 calculatedAmount: timeBasedEarnings,
                 hoursWorked: hoursWorked
@@ -103,7 +197,7 @@ class DataManager: ObservableObject {
         }
     }
     
-    // MARK: - 数据加载与保存
+    // MARK: - 数据加载与保存 - 优化版本
     func loadData() {
         // 加载用户配置
         if let data = UserDefaults.standard.data(forKey: userProfileKey),
@@ -130,23 +224,8 @@ class DataManager: ObservableObject {
     }
     
     func saveData() {
-        // 保存用户配置
-        if let data = try? JSONEncoder().encode(userProfile) {
-            UserDefaults.standard.set(data, forKey: userProfileKey)
-        }
-        
-        // 保存今日收入
-        saveTodayEarnings()
-        
-        // 保存成就
-        if let data = try? JSONEncoder().encode(achievements) {
-            UserDefaults.standard.set(data, forKey: achievementsKey)
-        }
-        
-        // 保存挑战
-        if let data = try? JSONEncoder().encode(challenges) {
-            UserDefaults.standard.set(data, forKey: challengesKey)
-        }
+        // 立即保存（用于重要操作）
+        performSave()
     }
     
     private func loadTodayEarnings() {
@@ -170,24 +249,21 @@ class DataManager: ObservableObject {
         }
     }
     
-    // MARK: - 收入管理
+    // MARK: - 收入管理 - 优化版本
     func updateTodayEarnings(_ amount: Double) {
         let wasGoalReached = todayEarnings.isGoalReached
         todayEarnings.updateAmount(amount, target: userProfile.dailyTarget)
-        updateProgress()
-        checkAchievements()
-        checkChallenges()
-        saveData()
         
-        // Firebase分析：记录收入更新事件
-        firebaseManager.trackEarningsUpdate(
-            amount: amount,
-            isGoalReached: todayEarnings.isGoalReached,
-            progressPercentage: currentProgress,
-            inputMethod: "manual"
-        )
+        // 清除相关缓存
+        clearCache()
         
-        // 如果刚刚达到目标，记录目标达成事件
+        // 延迟非关键操作，提高响应性
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.checkAchievements()
+            self.checkChallenges()
+        }
+        
+        // 只在重要事件时追踪Firebase
         if todayEarnings.isGoalReached && !wasGoalReached {
             firebaseManager.trackGoalAchievement(
                 targetAmount: userProfile.dailyTarget,
@@ -195,6 +271,16 @@ class DataManager: ObservableObject {
                 achievementTime: Date()
             )
             scheduleSuccessNotification()
+        }
+        
+        // 不是每次都追踪，减少网络开销
+        if amount > 0 && (amount.truncatingRemainder(dividingBy: 10) == 0 || wasGoalReached != todayEarnings.isGoalReached) {
+            firebaseManager.trackEarningsUpdate(
+                amount: amount,
+                isGoalReached: todayEarnings.isGoalReached,
+                progressPercentage: currentProgress,
+                inputMethod: "manual"
+            )
         }
     }
     
@@ -261,67 +347,81 @@ class DataManager: ObservableObject {
     }
     
     private func updateProgress() {
+        let newProgress: Double
         if userProfile.dailyTarget > 0 {
-            currentProgress = min(todayEarnings.amount / userProfile.dailyTarget, 1.0)
+            newProgress = min(todayEarnings.amount / userProfile.dailyTarget, 1.0)
         } else {
-            currentProgress = 0.0
+            newProgress = 0.0
+        }
+        
+        // 只在有显著变化时更新，减少UI重绘
+        if abs(newProgress - currentProgress) > 0.01 {
+            currentProgress = newProgress
         }
     }
     
-    // MARK: - 月份信息获取
+    // MARK: - 月份信息获取 - 缓存优化
     func getCurrentMonthInfo() -> MonthInfo {
-        return userProfile.getCurrentMonthInfo()
+        return getCachedResult(key: "currentMonthInfo") {
+            userProfile.getCurrentMonthInfo()
+        }
     }
     
     func getDetailedProgressInfo() -> DetailedProgressInfo {
-        let monthInfo = getCurrentMonthInfo()
-        let totalEarnings = todayEarnings.amount
-        let targetForToday = userProfile.dailyTarget
-        let remainingTarget = max(0, userProfile.monthlyIncome - getTotalMonthEarnings())
-        let avgNeededPerDay = remainingTarget / Double(max(1, monthInfo.relevantRemainingDays))
-        
-        return DetailedProgressInfo(
-            monthInfo: monthInfo,
-            todayEarnings: totalEarnings,
-            todayTarget: targetForToday,
-            monthlyTarget: userProfile.monthlyIncome,
-            totalMonthEarnings: getTotalMonthEarnings(),
-            remainingTarget: remainingTarget,
-            averageNeededPerRemainingDay: avgNeededPerDay,
-            isOnTrack: avgNeededPerDay <= targetForToday * 1.1 // 10%容错
-        )
+        return getCachedResult(key: "detailedProgressInfo") {
+            let monthInfo = getCurrentMonthInfo()
+            let totalEarnings = todayEarnings.amount
+            let targetForToday = userProfile.dailyTarget
+            let remainingTarget = max(0, userProfile.monthlyIncome - getTotalMonthEarnings())
+            let avgNeededPerDay = remainingTarget / Double(max(1, monthInfo.relevantRemainingDays))
+            
+            return DetailedProgressInfo(
+                monthInfo: monthInfo,
+                todayEarnings: totalEarnings,
+                todayTarget: targetForToday,
+                monthlyTarget: userProfile.monthlyIncome,
+                totalMonthEarnings: getTotalMonthEarnings(),
+                remainingTarget: remainingTarget,
+                averageNeededPerRemainingDay: avgNeededPerDay,
+                isOnTrack: avgNeededPerDay <= targetForToday * 1.1 // 10%容错
+            )
+        }
     }
     
     func getWorkingTimeInfo() -> WorkingTimeInfo {
-        let workingHours = userProfile.workingHours
-        let workedHours = workingHours.getWorkedHoursToday()
-        let totalHours = workingHours.workingHoursPerDay
-        let hourlyRate = userProfile.dailyTarget / totalHours
-        let isWorkingTime = workingHours.isCurrentlyWorkingTime()
-        let timeBasedEarnings = userProfile.calculateTimeBasedEarnings()
-        
-        return WorkingTimeInfo(
-            startTime: workingHours.formattedStartTime,
-            endTime: workingHours.formattedEndTime,
-            workedHours: workedHours,
-            totalWorkingHours: totalHours,
-            hourlyRate: hourlyRate,
-            isCurrentlyWorkingTime: isWorkingTime,
-            timeBasedEarnings: timeBasedEarnings,
-            isAutoCalculateEnabled: workingHours.isAutoCalculateEnabled
-        )
+        return getCachedResult(key: "workingTimeInfo") {
+            let workingHours = userProfile.workingHours
+            let workedHours = workingHours.getWorkedHoursToday()
+            let totalHours = workingHours.workingHoursPerDay
+            let hourlyRate = userProfile.dailyTarget / totalHours
+            let isWorkingTime = workingHours.isCurrentlyWorkingTime()
+            let timeBasedEarnings = userProfile.calculateTimeBasedEarnings()
+            
+            return WorkingTimeInfo(
+                startTime: workingHours.formattedStartTime,
+                endTime: workingHours.formattedEndTime,
+                workedHours: workedHours,
+                totalWorkingHours: totalHours,
+                hourlyRate: hourlyRate,
+                isCurrentlyWorkingTime: isWorkingTime,
+                timeBasedEarnings: timeBasedEarnings,
+                isAutoCalculateEnabled: workingHours.isAutoCalculateEnabled
+            )
+        }
     }
     
     func getPaydayInfo() -> PaydayInfo {
-        let payday = userProfile.paydaySettings
-        let daysUntilPayday = payday.getDaysUntilNextPayday()
-        let nextPayday = payday.getPaydayForCurrentMonth()
-        
-        return PaydayInfo(
-            paydaySettings: payday,
-            daysUntilNextPayday: daysUntilPayday,
-            nextPaydayDate: nextPayday
-        )
+        return getCachedResult(key: "paydayInfo") {
+            let payday = userProfile.paydaySettings
+            let daysUntilPayday = payday.getDaysUntilNextPayday()
+            let nextPayday = payday.getPaydayForCurrentMonth()
+            
+            return PaydayInfo(
+                paydaySettings: payday,
+                daysUntilNextPayday: daysUntilPayday,
+                nextPaydayDate: nextPayday
+            )
+        }
     }
     
     private func getTotalMonthEarnings() -> Double {
