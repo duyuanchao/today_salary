@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AchievementsView: View {
     @ObservedObject var dataManager = DataManager.shared
+    @EnvironmentObject var firebaseManager: FirebaseManager
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -42,6 +43,9 @@ struct AchievementsView: View {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
+            }
+            .onAppear {
+                firebaseManager.trackScreenView(screenName: "achievements")
             }
         }
     }

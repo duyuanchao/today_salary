@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var dataManager = DataManager.shared
+    @EnvironmentObject var firebaseManager: FirebaseManager
     @State private var monthlyIncome: String = ""
     @State private var userName: String = ""
     @State private var selectedCalculationMethod: CalculationMethod = .naturalDays
@@ -113,6 +114,7 @@ struct SettingsView: View {
                 
                 Section {
                     Button("Save Changes") {
+                        firebaseManager.trackButtonTap(buttonName: "save_settings", screenName: "settings")
                         saveSettings()
                     }
                     .disabled(monthlyIncome.isEmpty || Double(monthlyIncome) == nil || Double(monthlyIncome)! <= 0)
@@ -135,6 +137,7 @@ struct SettingsView: View {
         }
         .onAppear {
             loadCurrentSettings()
+            firebaseManager.trackScreenView(screenName: "settings")
         }
         .alert("Settings", isPresented: $showingAlert) {
             Button("OK", role: .cancel) { }

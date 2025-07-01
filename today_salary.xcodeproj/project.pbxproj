@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		12857A6D98B3A2CCFCCB310A /* Pods_today_salaryTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5A428E28B033A181220C049 /* Pods_today_salaryTests.framework */; };
+		7BFAB732A715E3D5B1CE166C /* Pods_today_salaryUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F753ED812BED88967BC16949 /* Pods_today_salaryUITests.framework */; };
+		E9E740C9444E6CFB2AE104F7 /* Pods_today_salary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E17E53347156A7863FB5DF6C /* Pods_today_salary.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		88DABECC2E12C79A00A8724D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,9 +30,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		218FF3AD6241743E586A5468 /* Pods-today_salary.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-today_salary.debug.xcconfig"; path = "Target Support Files/Pods-today_salary/Pods-today_salary.debug.xcconfig"; sourceTree = "<group>"; };
+		2F2C252EFB083A4598AB2916 /* Pods-today_salary.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-today_salary.release.xcconfig"; path = "Target Support Files/Pods-today_salary/Pods-today_salary.release.xcconfig"; sourceTree = "<group>"; };
+		56780C78A4DFEE3A5310DD7D /* Pods-today_salaryUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-today_salaryUITests.debug.xcconfig"; path = "Target Support Files/Pods-today_salaryUITests/Pods-today_salaryUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		6F4ED04DA7B2A657465F068A /* Pods-today_salaryUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-today_salaryUITests.release.xcconfig"; path = "Target Support Files/Pods-today_salaryUITests/Pods-today_salaryUITests.release.xcconfig"; sourceTree = "<group>"; };
 		88DABEBB2E12C79900A8724D /* today_salary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = today_salary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88DABECB2E12C79A00A8724D /* today_salaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = today_salaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		88DABED52E12C79A00A8724D /* today_salaryUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = today_salaryUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD99C931B13EC163B245AFD /* Pods-today_salaryTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-today_salaryTests.debug.xcconfig"; path = "Target Support Files/Pods-today_salaryTests/Pods-today_salaryTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A5A428E28B033A181220C049 /* Pods_today_salaryTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_today_salaryTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CABF20887BEA703970A572C7 /* Pods-today_salaryTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-today_salaryTests.release.xcconfig"; path = "Target Support Files/Pods-today_salaryTests/Pods-today_salaryTests.release.xcconfig"; sourceTree = "<group>"; };
+		E17E53347156A7863FB5DF6C /* Pods_today_salary.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_today_salary.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F753ED812BED88967BC16949 /* Pods_today_salaryUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_today_salaryUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9E740C9444E6CFB2AE104F7 /* Pods_today_salary.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12857A6D98B3A2CCFCCB310A /* Pods_today_salaryTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,12 +83,36 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7BFAB732A715E3D5B1CE166C /* Pods_today_salaryUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		27E0E7B05673D189BCE55312 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E17E53347156A7863FB5DF6C /* Pods_today_salary.framework */,
+				A5A428E28B033A181220C049 /* Pods_today_salaryTests.framework */,
+				F753ED812BED88967BC16949 /* Pods_today_salaryUITests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5B3045C669EC55295E19F237 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				218FF3AD6241743E586A5468 /* Pods-today_salary.debug.xcconfig */,
+				2F2C252EFB083A4598AB2916 /* Pods-today_salary.release.xcconfig */,
+				8DD99C931B13EC163B245AFD /* Pods-today_salaryTests.debug.xcconfig */,
+				CABF20887BEA703970A572C7 /* Pods-today_salaryTests.release.xcconfig */,
+				56780C78A4DFEE3A5310DD7D /* Pods-today_salaryUITests.debug.xcconfig */,
+				6F4ED04DA7B2A657465F068A /* Pods-today_salaryUITests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		88DABEB22E12C79900A8724D = {
 			isa = PBXGroup;
 			children = (
@@ -79,6 +120,8 @@
 				88DABECE2E12C79A00A8724D /* today_salaryTests */,
 				88DABED82E12C79A00A8724D /* today_salaryUITests */,
 				88DABEBC2E12C79900A8724D /* Products */,
+				5B3045C669EC55295E19F237 /* Pods */,
+				27E0E7B05673D189BCE55312 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,9 +142,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 88DABEDF2E12C79A00A8724D /* Build configuration list for PBXNativeTarget "today_salary" */;
 			buildPhases = (
+				ECA8CDB65780E72A699BAB13 /* [CP] Check Pods Manifest.lock */,
 				88DABEB72E12C79900A8724D /* Sources */,
 				88DABEB82E12C79900A8724D /* Frameworks */,
 				88DABEB92E12C79900A8724D /* Resources */,
+				E0B7CAC36807B1EBB19CC83A /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -111,8 +156,6 @@
 				88DABEBD2E12C79900A8724D /* today_salary */,
 			);
 			name = today_salary;
-			packageProductDependencies = (
-			);
 			productName = today_salary;
 			productReference = 88DABEBB2E12C79900A8724D /* today_salary.app */;
 			productType = "com.apple.product-type.application";
@@ -121,6 +164,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 88DABEE22E12C79A00A8724D /* Build configuration list for PBXNativeTarget "today_salaryTests" */;
 			buildPhases = (
+				9871161BE619DEA07D31E6A2 /* [CP] Check Pods Manifest.lock */,
 				88DABEC72E12C79A00A8724D /* Sources */,
 				88DABEC82E12C79A00A8724D /* Frameworks */,
 				88DABEC92E12C79A00A8724D /* Resources */,
@@ -134,8 +178,6 @@
 				88DABECE2E12C79A00A8724D /* today_salaryTests */,
 			);
 			name = today_salaryTests;
-			packageProductDependencies = (
-			);
 			productName = today_salaryTests;
 			productReference = 88DABECB2E12C79A00A8724D /* today_salaryTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -144,6 +186,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 88DABEE52E12C79A00A8724D /* Build configuration list for PBXNativeTarget "today_salaryUITests" */;
 			buildPhases = (
+				60C8B347F3896C37B78AA994 /* [CP] Check Pods Manifest.lock */,
 				88DABED12E12C79A00A8724D /* Sources */,
 				88DABED22E12C79A00A8724D /* Frameworks */,
 				88DABED32E12C79A00A8724D /* Resources */,
@@ -157,8 +200,6 @@
 				88DABED82E12C79A00A8724D /* today_salaryUITests */,
 			);
 			name = today_salaryUITests;
-			packageProductDependencies = (
-			);
 			productName = today_salaryUITests;
 			productReference = 88DABED52E12C79A00A8724D /* today_salaryUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -230,6 +271,92 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		60C8B347F3896C37B78AA994 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-today_salaryUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9871161BE619DEA07D31E6A2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-today_salaryTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E0B7CAC36807B1EBB19CC83A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-today_salary/Pods-today_salary-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-today_salary/Pods-today_salary-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-today_salary/Pods-today_salary-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		ECA8CDB65780E72A699BAB13 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-today_salary-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		88DABEB72E12C79900A8724D /* Sources */ = {
@@ -390,6 +517,7 @@
 		};
 		88DABEE02E12C79A00A8724D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 218FF3AD6241743E586A5468 /* Pods-today_salary.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -398,6 +526,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"today_salary/Preview Content\"";
 				DEVELOPMENT_TEAM = 63J4VP88UL;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -419,6 +548,7 @@
 		};
 		88DABEE12E12C79A00A8724D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2F2C252EFB083A4598AB2916 /* Pods-today_salary.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -427,6 +557,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"today_salary/Preview Content\"";
 				DEVELOPMENT_TEAM = 63J4VP88UL;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -448,6 +579,7 @@
 		};
 		88DABEE32E12C79A00A8724D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8DD99C931B13EC163B245AFD /* Pods-today_salaryTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -466,6 +598,7 @@
 		};
 		88DABEE42E12C79A00A8724D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CABF20887BEA703970A572C7 /* Pods-today_salaryTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -484,6 +617,7 @@
 		};
 		88DABEE62E12C79A00A8724D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 56780C78A4DFEE3A5310DD7D /* Pods-today_salaryUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -500,6 +634,7 @@
 		};
 		88DABEE72E12C79A00A8724D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6F4ED04DA7B2A657465F068A /* Pods-today_salaryUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

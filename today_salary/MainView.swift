@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainView: View {
     @ObservedObject var dataManager = DataManager.shared
+    @EnvironmentObject var firebaseManager: FirebaseManager
     @State private var todayEarningsInput: String = ""
     @State private var showingSettings = false
     @FocusState private var isEarningsFieldFocused: Bool
@@ -237,6 +238,7 @@ struct MainView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(trailing: 
                 Button("Settings") {
+                    firebaseManager.trackButtonTap(buttonName: "settings", screenName: "main")
                     hideKeyboard()
                     showingSettings = true
                 }
@@ -248,6 +250,9 @@ struct MainView: View {
         .onAppear {
             // 使用当前收入（可能是自动计算的）
             todayEarningsInput = String(format: "%.2f", dataManager.todayEarnings.amount)
+            
+            // Firebase分析：记录屏幕访问
+            firebaseManager.trackScreenView(screenName: "main")
         }
         .onChange(of: dataManager.todayEarnings.amount) { newAmount in
             // 当收入自动更新时，同步更新输入框

@@ -10,6 +10,9 @@ class DataManager: ObservableObject {
     @Published var challenges: [Challenge] = []
     @Published var currentProgress: Double = 0.0
     
+    // Firebase管理器
+    private let firebaseManager = FirebaseManager.shared
+    
     private let userProfileKey = "UserProfile"
     private let earningsKey = "DailyEarnings"
     private let achievementsKey = "Achievements"
@@ -55,11 +58,19 @@ class DataManager: ObservableObject {
         
         // 只有当自动计算的收入大于当前记录的收入时才更新
         if timeBasedEarnings > todayEarnings.amount {
+            let hoursWorked = userProfile.workingHours.getWorkedHoursToday()
+            
             todayEarnings.updateAmount(timeBasedEarnings, target: userProfile.dailyTarget)
             updateProgress()
             checkAchievements()
             checkChallenges()
             saveData()
+            
+            // Firebase分析：记录自动计算事件
+            firebaseManager.trackAutoEarningsCalculation(
+                calculatedAmount: timeBasedEarnings,
+                hoursWorked: hoursWorked
+            )
         }
     }
     
@@ -161,13 +172,28 @@ class DataManager: ObservableObject {
     
     // MARK: - 收入管理
     func updateTodayEarnings(_ amount: Double) {
+        let wasGoalReached = todayEarnings.isGoalReached
         todayEarnings.updateAmount(amount, target: userProfile.dailyTarget)
         updateProgress()
         checkAchievements()
         checkChallenges()
         saveData()
         
-        if todayEarnings.isGoalReached {
+        // Firebase分析：记录收入更新事件
+        firebaseManager.trackEarningsUpdate(
+            amount: amount,
+            isGoalReached: todayEarnings.isGoalReached,
+            progressPercentage: currentProgress,
+            inputMethod: "manual"
+        )
+        
+        // 如果刚刚达到目标，记录目标达成事件
+        if todayEarnings.isGoalReached && !wasGoalReached {
+            firebaseManager.trackGoalAchievement(
+                targetAmount: userProfile.dailyTarget,
+                actualAmount: amount,
+                achievementTime: Date()
+            )
             scheduleSuccessNotification()
         }
     }
@@ -185,6 +211,19 @@ class DataManager: ObservableObject {
         saveData()
         generateDailyChallenge()
         
+        // Firebase分析：记录用户设置完成事件
+        firebaseManager.trackUserSetup(
+            monthlyIncome: monthlyIncome,
+            calculationMethod: calculationMethod.rawValue
+        )
+        
+        // 设置Firebase用户属性
+        firebaseManager.setUserProperties(
+            monthlyIncome: monthlyIncome,
+            calculationMethod: calculationMethod.rawValue,
+            hasWorkingHours: userProfile.workingHours.isAutoCalculateEnabled
+        )
+        
         // 启动自动更新
         startAutoEarningsUpdate()
     }
@@ -192,6 +231,17 @@ class DataManager: ObservableObject {
     func updateWorkingHours(_ workingHours: WorkingHours) {
         userProfile.workingHours = workingHours
         saveData()
+        
+        // Firebase分析：记录工作时间设置事件
+        let calendar = Calendar.current
+        let startHour = calendar.component(.hour, from: workingHours.startTime)
+        let endHour = calendar.component(.hour, from: workingHours.endTime)
+        
+        firebaseManager.trackWorkingHoursSet(
+            startHour: startHour,
+            endHour: endHour,
+            autoCalculateEnabled: workingHours.isAutoCalculateEnabled
+        )
         
         // 如果启用了自动计算，立即更新收入
         if workingHours.isAutoCalculateEnabled {
@@ -202,6 +252,12 @@ class DataManager: ObservableObject {
     func updatePaydaySettings(_ paydaySettings: PaydaySettings) {
         userProfile.paydaySettings = paydaySettings
         saveData()
+        
+        // Firebase分析：记录发薪日设置事件
+        firebaseManager.trackPaydaySettingsUpdate(
+            paydayType: paydaySettings.isLastDayOfMonth ? "month_end" : "specific_date",
+            dayOfMonth: paydaySettings.isLastDayOfMonth ? nil : paydaySettings.paydayOfMonth
+        )
     }
     
     private func updateProgress() {
@@ -339,6 +395,13 @@ class DataManager: ObservableObject {
     
     private func unlockAchievement(at index: Int) {
         achievements[index].isUnlocked = true
+        
+        // Firebase分析：记录成就解锁事件
+        firebaseManager.trackAchievementUnlocked(
+            achievementTitle: achievements[index].title,
+            achievementIndex: index
+        )
+        
         scheduleAchievementNotification(achievements[index])
     }
     
@@ -373,7 +436,19 @@ class DataManager: ObservableObject {
             if Calendar.current.isDate(challenges[i].date, inSameDayAs: today) &&
                !challenges[i].isCompleted &&
                todayEarnings.amount >= challenges[i].targetAmount {
+                
+                let challenge = challenges[i]
+                let timeToComplete = Date().timeIntervalSince(challenge.date)
+                
                 challenges[i].isCompleted = true
+                
+                // Firebase分析：记录挑战完成事件
+                firebaseManager.trackChallengeCompleted(
+                    challengeTitle: challenge.title,
+                    targetAmount: challenge.targetAmount,
+                    timeToComplete: timeToComplete
+                )
+                
                 scheduleChallengeNotification(challenges[i])
             }
         }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WelcomeView: View {
     @ObservedObject var dataManager = DataManager.shared
+    @EnvironmentObject var firebaseManager: FirebaseManager
     @State private var monthlyIncome: String = ""
     @State private var userName: String = ""
     @State private var selectedCalculationMethod: CalculationMethod = .naturalDays
@@ -206,7 +207,10 @@ struct WelcomeView: View {
                         .padding(.horizontal, 30)
                         
                         // Get Started Button
-                        Button(action: setupProfile) {
+                        Button(action: {
+                            firebaseManager.trackButtonTap(buttonName: "get_started", screenName: "welcome")
+                            setupProfile()
+                        }) {
                             HStack {
                                 Image(systemName: "arrow.right.circle.fill")
                                 Text("Get Started")
@@ -233,6 +237,9 @@ struct WelcomeView: View {
             Button("OK", role: .cancel) { }
         } message: {
             Text(alertMessage)
+        }
+        .onAppear {
+            firebaseManager.trackScreenView(screenName: "welcome")
         }
     }
     
