@@ -156,15 +156,12 @@ struct GreetingHeader: View {
     }
 }
 
-// MARK: - Enhanced Input Card
-struct EarningsInputCard: View {
-    @Binding var earningsInput: String
-    @FocusState.Binding var isFocused: Bool
+// MARK: - Enhanced Display Card
+struct EarningsDisplayCard: View {
     let dailyTarget: Double
     let currentAmount: Double
     let isAutoEnabled: Bool
     let monthInfo: MonthInfo
-    let onAmountChange: (Double) -> Void
     
     @State private var showingHint = false
     
@@ -193,28 +190,33 @@ struct EarningsInputCard: View {
                     .onAppear {
                         showingHint = true
                     }
+                } else {
+                    HStack(spacing: DesignTokens.Spacing.xs) {
+                        Image(systemName: "eye.fill")
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundColor(DesignTokens.Colors.info)
+                        
+                        Text("Display only")
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundColor(DesignTokens.Colors.info)
+                    }
                 }
             }
             
-            // Amount Input
+            // Amount Display
             HStack {
                 Text("$")
                     .font(DesignTokens.Typography.largeTitle)
                     .foregroundColor(DesignTokens.Colors.textPrimary)
                 
-                TextField("0.00", text: $earningsInput)
+                Text(String(format: "%.2f", currentAmount))
                     .font(DesignTokens.Typography.largeTitle)
-                    .keyboardType(.decimalPad)
-                    .focused($isFocused)
-                    .multilineTextAlignment(.leading)
-                    .onChange(of: earningsInput) { newValue in
-                        if let amount = Double(newValue) {
-                            onAmountChange(amount)
-                        }
-                    }
-                    .onTapGesture {
-                        HapticManager.selection()
-                    }
+                    .fontWeight(.bold)
+                    .foregroundColor(DesignTokens.Colors.textPrimary)
+                    .contentTransition(.numericText())
+                    .animation(.easeInOut(duration: 0.3), value: currentAmount)
+                
+                Spacer()
             }
             .padding(DesignTokens.Spacing.md)
             .background(DesignTokens.Colors.surfaceSecondary)
@@ -258,17 +260,6 @@ struct EarningsInputCard: View {
         }
         .padding(DesignTokens.Spacing.lg)
         .glassMorphism()
-        .onTapGesture {
-            if !isFocused {
-                HapticManager.selection()
-            }
-        }
-        // 双击手势设置目标金额
-        .onTapGesture(count: 2) {
-            earningsInput = String(format: "%.2f", dailyTarget)
-            onAmountChange(dailyTarget)
-            HapticManager.impact(.medium)
-        }
     }
 }
 
